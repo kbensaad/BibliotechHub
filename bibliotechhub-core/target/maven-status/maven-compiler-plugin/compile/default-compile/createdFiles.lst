@@ -1,0 +1,5 @@
+com\bibliotechhub\core\BibliotechHubCoreApplication.class
+com\bibliotechhub\core\model\Book.class
+com\bibliotechhub\core\repository\BookRepository.class
+com\bibliotechhub\core\enums\Categories.class
+com\bibliotechhub\core\controller\BookController.class
