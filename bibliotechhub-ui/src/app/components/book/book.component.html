@@ -1,0 +1,159 @@
+<div class="card">
+  <div class="card-header bg-primary">
+    <h5 class="text-white float-left">{{ bookCategoryName }} Books</h5>
+    <button type="button" class="btn btn-light btn-sm float-right" 
+      (click)="openAddBookModal(addBookTemplate)" *ngIf="(user$ | async)?.isAdministrator">Add Book</button>
+  </div>
+  <div class="card-body">
+    <table class="table table-hover table-bordered">
+      <thead class="table-primary">
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Description</th>
+          <th scope="col">Available</th>
+          <th style="width:95px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="books.length == 0">
+          <td colspan="4" class="table-light">
+            <div class="text-center"><strong>No books found</strong></div>
+          </td>
+        </tr>
+        <tr *ngFor="let book of books">
+          <td>{{ book.title }}</td>
+          <td>{{ book.description }}</td>
+          <td>{{ book.isAvailable }}</td>
+          <td class="text-center">
+            <div class="row">
+              <div class="col-1">
+                <i class="oi oi-cart text-primary" tooltip="Order Book" (click)="openCreateOrderModal(createOrderTemplate, book)"></i>
+              </div>
+              <div class="col-1" *ngIf="(user$ | async)?.isAdministrator">
+                  <i class="oi oi-pencil text-info" tooltip="Edit Book" (click)="openEditBookModal(editBookTemplate, book)"></i>
+              </div>
+              <div class="col-1" *ngIf="(user$ | async)?.isAdministrator">
+                  <i class="oi oi-trash text-danger" tooltip="Delete Book" (click)="openDeleteBookModal(deleteBookTemplate, book)"></i>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<ng-template #addBookTemplate>
+  <div class="modal-header bg-primary text-white">
+    <h4 class="modal-title pull-left">Add Book</h4>
+  </div>
+  <div class="modal-body">
+      <small class="text-danger">* required fields</small>
+      <form [formGroup]="bookForm">
+        <div class="form-group">
+          <label for="title">Title<span class="text-danger">*</span></label>
+          <input type="text" formControlName="title" class="form-control" id="title" required [ngClass]="{ 'is-invalid': f.title.touched && f.title.errors }">
+          <div *ngIf="f.title.touched && f.title.errors" class="invalid-feedback">
+            <div *ngIf="f.title.errors.required">Please enter a title for the book!</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="description">Description<span class="text-danger">*</span></label>
+          <input type="text" formControlName="description" class="form-control" id="description" required [ngClass]="{ 'is-invalid': f.description.touched && f.description.errors }">
+          <div *ngIf="f.description.touched && f.description.errors" class="invalid-feedback">
+            <div *ngIf="f.description.errors.required">Please enter a description for the book!</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" (click)="onAddBook()" [disabled]="bookForm.invalid">Save</button>
+          <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancel</button>
+        </div>
+      </form>
+  </div>
+</ng-template>
+
+<ng-template #deleteBookTemplate>
+  <div class="modal-header bg-primary text-white">
+    <h5 class="modal-title">Delete Book</h5>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete {{selectedBook.title}}?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="onDeleteBook(selectedBook)">Yes</button>
+    <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">No</button>
+  </div>
+</ng-template>
+
+<ng-template #editBookTemplate>
+  <div class="modal-header bg-primary text-white">
+    <h5 class="modal-title">Edit Book</h5>
+  </div>
+  <div class="modal-body">
+    <small class="text-danger">* required fields</small>
+    <form [formGroup]="bookForm">
+      <div class="form-group">
+        <label for="title">Title<span class="text-danger">*</span></label>
+        <input type="text" formControlName="title" class="form-control" id="title" required [ngClass]="{ 'is-invalid': f.title.touched && f.title.errors }">
+        <div *ngIf="f.title.touched && f.title.errors" class="invalid-feedback">
+          <div *ngIf="f.title.errors.required">Please enter a title for the book!</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea formControlName="description" class="form-control" id="description" row="3" cols="6" required
+          [ngClass]="{ 'is-invalid': f.description.touched && f.description.errors }"></textarea>
+        <div *ngIf="f.description.touched && f.description.errors" class="invalid-feedback">
+          <div *ngIf="f.description.errors.required">Please enter a description for the book!</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="onUpdateBook()" [disabled]="bookForm.invalid">Update</button>
+        <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #createOrderTemplate>
+  <div class="modal-header bg-primary text-white">
+    <h5 class="modal-title">Create Order</h5>
+  </div>
+  <div class="modal-body">
+      <small class="text-danger">* required fields</small>
+      <form [formGroup]="orderForm">
+          <div class="form-group">
+              <label for="title">Book</label>
+              <input type="text" formControlName="book" class="form-control" id="book">
+          </div>
+          <div class="form-group">
+              <label for="bookCategory">Book Category</label>
+              <input type="text" formControlName="bookCategory" class="form-control" id="bookCategory">
+          </div>
+          <div class="form-group">
+              <label for="orderDate">Date</label>
+              <input type="text" formControlName="orderDate" class="form-control" id="orderDate">
+          </div>
+          <div class="form-group">
+              <label for="unitPrice">Unit Price</label>
+              <input type="text" formControlName="unitPrice" class="form-control" id="unitPrice">
+          </div>
+          <div class="form-group">
+              <label for="quantity">Quantity<span class="text-danger">*</span></label>
+              <input type="text" formControlName="quantity" class="form-control" id="quantity" required placeholder="0"
+                [ngClass]="{ 'is-invalid': orderForm.controls.quantity.touched && orderForm.controls.quantity.errors }">
+              <div *ngIf="orderForm.controls.quantity.touched && orderForm.controls.quantity.errors" class="invalid-feedback">
+                <div *ngIf="orderForm.controls.quantity.errors.required">Please enter a quantity!</div>
+              </div>
+          </div>
+          <div class="form-group">
+              <label for="total">Total</label>
+              <input type="text" value="{{(orderForm.controls.unitPrice.value * orderForm.controls.quantity.value) | number:'1.2-2'}}" class="form-control" id="total" disabled>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-primary" (click)="onCreateOrder()" [disabled]="orderForm.invalid">Save</button>
+              <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancel</button>
+            </div>
+      </form>
+  </div>
+</ng-template>

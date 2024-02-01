@@ -1,0 +1,26 @@
+<div class="row">
+  <div class="col-sm-4">
+    <div class="card">
+      <h5 class="card-header text-white bg-primary">
+        Book Category
+        <br><small class="text-light">Pick a category</small>
+      </h5>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item list-group-item-action" *ngIf="bookCategories.length == 0">
+          <div class="text-center"><strong>No book categories found</strong></div>
+        </li>
+        <li class="list-group-item list-group-item-action" style="cursor: pointer;" *ngFor="let bookcategory of bookCategories" 
+          (click)="changeBookCategory(bookcategory)">{{ bookcategory.name }}
+            <i class="oi oi-check float-right text-success" *ngIf="!!selectedBookCategory && bookcategory.id === selectedBookCategory.id"></i>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-sm-8">
+    <app-book  *ngIf="!!selectedBookCategory"
+      [bookCategoryId]="selectedBookCategory.id" 
+      [bookCategoryName]="selectedBookCategory.name">
+    </app-book>
+  </div>
+</div>
