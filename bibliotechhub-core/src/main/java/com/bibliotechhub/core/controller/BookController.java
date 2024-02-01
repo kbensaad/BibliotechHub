@@ -6,51 +6,53 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.bibliotechhub.core.exceptions.DoesNotExistException;
 import com.bibliotechhub.core.model.Book;
 import com.bibliotechhub.core.service.BookService;
 
-import java.util.List;
+import jakarta.validation.Valid;
 
-@CrossOrigin
+import java.util.List;
+import java.util.Optional;
+
 @RestController
-@RequestMapping("/books")
+@RequestMapping(value = "/api/books")
 public class BookController {
 
-    @Autowired
-    private BookService bookService;
+	@Autowired
+	private BookService bookService;
 
-    @GetMapping
-    public List<Book> getAllBooks() {
-        return bookService.getAllBooks();
-    }
+	@GetMapping("/{id}")
+	public Book getBook(@PathVariable String id) throws DoesNotExistException {
+		return bookService.getBook(id);
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable Long id) {
-        Book book = bookService.getBookById(id);
-        if (book == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(book);
-    }
+	@GetMapping()
+	public List<Book> searchForBooks(@RequestParam("bookCategoryId") Optional<String> bookCategoryId) {
+		
+		if (bookCategoryId.isPresent()) {
+			return bookService.getBooksByBookCategory(bookCategoryId.get());
+		}
+		
+		return bookService.getBooks();
+	}
 
-    @PostMapping
-    public ResponseEntity<Book> createBook(@RequestBody Book book) {
-        Book createdBook = bookService.createBook(book);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
-    }
+	@PostMapping()
+	public Book createBook(@RequestParam("bookCategoryId") String bookCategoryId,
+			@Valid @RequestBody Book book) {
+		return bookService.createBook(bookCategoryId, book);
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book updatedBook) {
-        Book book = bookService.updateBook(id, updatedBook);
-        if (book == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(book);
-    }
+	@PutMapping("/{id}")
+	public Book updateBook(@PathVariable String id, @Valid @RequestBody Book book)
+			throws DoesNotExistException {
+		return bookService.updateBook(id, book);
+	}
+	
+	@DeleteMapping("/{id}")
+	public void deleteBook(@PathVariable String id) throws DoesNotExistException {
+		 bookService.delete(id);
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        bookService.deleteBook(id);
-        return ResponseEntity.noContent().build();
-    }
+	}
+
 }

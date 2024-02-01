@@ -1,29 +1,44 @@
 package com.bibliotechhub.core.model;
 
-import com.bibliotechhub.core.enums.Categories;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
-@Data
-@Entity(name = "Book")
-@Table(name = "book")
-@JsonIgnoreProperties("inspection")
-public class Book {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+
+
+@Entity
+@Table
+@Data
+public class Book {
 	
+	@Id()
+	@Column(nullable = false, unique = true)
+	private String id;
+	
+	@PrePersist
+	public void prePersist() {
+		this.id = UUID.randomUUID().toString();
+	}
+	@Column(nullable = true)
 	private String title;
 
-	private Categories category;
+	@Column(length = 4000, nullable = true)
+	private String description;
+
+
+	private String bookCategoryId;
+	 private boolean isAvailable;
+
+
+
 	
-	private boolean isAvailable;
-	
+
 }
